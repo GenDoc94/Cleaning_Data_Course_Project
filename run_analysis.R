@@ -63,6 +63,10 @@ colnames(alldata_ms_a) <- gsub("Mag", "Magnitude", colnames(alldata_ms_a))
 colnames(alldata_ms_a) <- gsub("BodyBody", "Body", colnames(alldata_ms_a))
 colnames(alldata_ms_a) <- gsub("^t", "time", colnames(alldata_ms_a))
 colnames(alldata_ms_a) <- gsub("^f", "frequency", colnames(alldata_ms_a))
+colnames(alldata_ms_a)<- gsub("-mean()", "Mean", colnames(alldata_ms_a), ignore.case = TRUE)
+colnames(alldata_ms_a)<- gsub("\\(\\)", "", colnames(alldata_ms_a), ignore.case = TRUE)
+colnames(alldata_ms_a)<-gsub("-std()", "SD", colnames(alldata_ms_a), ignore.case = TRUE)
+colnames(alldata_ms_a)<-gsub("-freq()", "Frequency", colnames(alldata_ms_a), ignore.case = TRUE)
 
 # 5. Creating a second, independent tidy data set with the avg of each variable for each activity and subject
 tidyData <- alldata_ms_a %>%
