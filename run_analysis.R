@@ -34,3 +34,40 @@ colnames(dActivity) <- c("activityID", "activityType")
 colnames(x_train) <- ft[, 2]; colnames(x_test) <- ft[, 2]
 colnames(y_train) <- "activityID"; colnames(y_test) <- "activityID"
 colnames(s_train) <- "subjectID"; colnames(s_test) <- "subjectID"
+
+
+#MERGING AND DELETING
+train <- cbind(y_train, s_train, x_train)
+test <- cbind(y_test, s_test, x_test)
+alldata <- rbind(train, test)
+rm(train); rm(test)
+
+#DELETING ADDITIONAL DATASETS
+vars <- ls()
+vars_rm <- vars[grepl("^s_|^x_|^y_|ft", vars)]
+rm(list = (vars_rm)); rm(vars); rm(vars_rm)
+
+#SUBSET MEAN_SD
+logical_mean_sd <- grepl("activityID|subjectID|mean\\(\\)|std\\(\\)", colnames(alldata))
+alldata_ms <- alldata[, logical_mean_sd]
+rm(logical_mean_sd)
+
+#SUBSET MEAN_DATA + ACTIVITY
+alldata_ms_a <- merge(alldata_ms, dActivity, by = "activityID", all.x = TRUE)
+rm(dActivity)
+
+#CHANGING COLNAMES
+colnames(alldata_ms_a) <- gsub("Acc", "Accelerometer", colnames(alldata_ms_a))
+colnames(alldata_ms_a) <- gsub("Gyro", "Gyroscope", colnames(alldata_ms_a))
+colnames(alldata_ms_a) <- gsub("Mag", "Magnitude", colnames(alldata_ms_a))
+colnames(alldata_ms_a) <- gsub("BodyBody", "Body", colnames(alldata_ms_a))
+colnames(alldata_ms_a) <- gsub("^t", "time", colnames(alldata_ms_a))
+colnames(alldata_ms_a) <- gsub("^f", "frequency", colnames(alldata_ms_a))
+
+# 5. Creating a second, independent tidy data set with the avg of each variable for each activity and subject
+tidyData <- alldata_ms_a %>%
+        group_by(subjectID, activityID, activityType) %>%
+        summarise_all(mean)
+
+# Writing second tidy data set into a txt file
+write.table(tidyData, "tidyData.txt", row.names = FALSE)
